@@ -4,11 +4,16 @@
 
 ## Стек
 
+Внутренний CRUD и журнал работ по строительным объектам: нужны предсказуемая структура API, общие типы на границе клиент–сервер и запуск одной командой. Выбран монорепозиторий (pnpm + Turborepo): API, SPA и пакет `packages/shared` в одном репозитории — меньше рассинхрона DTO, общий `pnpm dev`. На backend — Nest.js с упрощённым DDD (явные use case’ы и репозитории) и Prisma поверх PostgreSQL (миграции, типобезопасные запросы к схеме «объект → записи журнала»). На frontend — React SPA на Vite: React Query кэширует ответы API, Zustand хранит только фильтры журнала, react-hook-form и Zod — валидация форм на отдельных маршрутах. Деплой — Docker Compose и nginx: воспроизводимый старт без ручной настройки Node и БД.
+
 | Слой | Технологии | Почему |
 |------|------------|--------|
 | Monorepo | pnpm workspaces + Turborepo | Единая установка зависимостей, параллельный `dev` |
+| Общие типы | `packages/shared` | Один источник правды для DTO между API и web |
 | Backend | Nest.js (DDD), Prisma, PostgreSQL | Явные use cases, типобезопасный доступ к БД |
-| Frontend | React, TypeScript, React Query, Zustand, Tailwind, shadcn/ui | Кэш API, лёгкий стейт фильтров, доступные компоненты |
+| Сборка web | Vite, React Router | Быстрый dev/build, маршруты = отдельные страницы форм |
+| Frontend | React, TypeScript, React Query, Zustand, react-hook-form, Zod, Tailwind, shadcn/ui | Кэш API, лёгкий стейт фильтров, валидация форм, доступные компоненты |
+| Деплой | Docker Compose, nginx | `docker compose up` поднимает БД, API и статику; `/api` проксируется на Nest |
 
 Формы — отдельные страницы, без модальных окон.
 
